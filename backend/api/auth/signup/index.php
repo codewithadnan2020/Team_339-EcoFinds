@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 
 // DB connection
-$conn = mysqli_connect("localhost", "root", "", "ecofinds");
+include_once '../../connection.php';
 
 // Get input
 $email = trim($_GET['email'] ?? '');

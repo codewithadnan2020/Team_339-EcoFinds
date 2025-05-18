@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 
 // DB connection
-$conn = mysqli_connect("localhost", "root", "", "ecofinds");
+include_once '../../connection.php';
 
 // Get input
 $email = trim($_GET['email'] ?? '');
@@ -26,7 +26,13 @@ if (mysqli_num_rows($check) > 0) {
     $passwordData = mysqli_fetch_assoc($passwordCheck);
     
     if (password_verify($password, $passwordData['password_hash'])) {
-        echo json_encode(["message" => "Login successful", "userId" => $userId]);
+        $statusUpdate = mysqli_query($conn, "UPDATE users SET login_status = '1' WHERE id = '$user_id'");
+        if ($statusUpdate) {
+            echo json_encode(["message" => "Login successful", "userId" => $userId]);
+        }else{
+            http_response_code(500);
+            echo json_encode(["error" => "Error: " . mysqli_error($conn)]);
+        }
     } else {
         http_response_code(401);
         echo json_encode(["error" => "Invalid password"]);
