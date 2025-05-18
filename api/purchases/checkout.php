@@ -25,7 +25,6 @@ while ($row = mysqli_fetch_assoc($cart_items)) {
         INSERT INTO purchases (user_id, product_id)
         VALUES ('$user_id', '$product_id')
     ");
-    echo 'asd';
 
     // Optional: mark product as sold (only if it's not already)
     mysqli_query($conn, "

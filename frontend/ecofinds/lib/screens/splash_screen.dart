@@ -1,4 +1,4 @@
-import 'package:ecofinds/screens/home/home_screen.dart';
+import 'package:ecofinds/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth/login_screen.dart';

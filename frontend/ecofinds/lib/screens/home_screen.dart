@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:ecofinds/core/constants.dart';
-import 'package:ecofinds/models/product.dart';
+import 'package:ecofinds/screens/Navigation.dart';
+import 'package:ecofinds/screens/add_edit_product.dart';
+import 'package:ecofinds/screens/cart_screen.dart';
+import 'package:ecofinds/screens/product_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import '../../widgets/product_card.dart';
-import '../../widgets/category_chip.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -41,12 +42,28 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('EcoFinds'),
         leading: IconButton(
           icon: const Icon(Icons.menu),
-          onPressed: () {}, // Open side menu
+          onPressed: () {
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DashboardScreen(),
+                ),
+              );
+          }, // Open side menu
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart),
-            onPressed: () {}, // Navigate to cart
+            onPressed: () {
+              // Navigate to cart
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CartScreen(),
+                ),
+              );
+            }, // Navigate to cart
           )
         ],
       ),
@@ -113,7 +130,14 @@ class _HomeScreenState extends State<HomeScreen> {
             itemBuilder: (context, index) {
               final item = products[index];
               return  InkWell(
-      onTap: (){},
+      onTap: (){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetail(productId: item['id']),
+          ),
+        );
+      },
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
