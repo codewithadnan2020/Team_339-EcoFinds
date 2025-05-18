@@ -10,7 +10,7 @@ $password = trim($_POST['password'] ?? '');
 
 if (!$email || !$password) {
     http_response_code(400);
-    echo json_encode(["error" => "All fields are required"]);
+    echo json_encode(["error" => "$email All fields are required"]);
     exit;
 }
 
