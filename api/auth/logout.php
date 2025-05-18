@@ -2,10 +2,10 @@
 header('Content-Type: application/json');
 
 // DB connection
-include_once '../../connection.php';
+include_once '../connection.php';
 
 // Get input
-$email = trim($_GET['email'] ?? '');
+$email = trim($_POST['email'] ?? '');
 
 if (!$email) {
     http_response_code(400);
@@ -19,7 +19,7 @@ if (mysqli_num_rows($check) > 0) {
     // Fetch user data
     $user = mysqli_fetch_assoc($check);
     $userId = $user['id'];
-    $statusUpdate = mysqli_query($conn, "UPDATE users SET login_status = '' WHERE id = '$user_id'");
+    $statusUpdate = mysqli_query($conn, "UPDATE users SET login_status = '' WHERE id = '$userId'");
     if ($statusUpdate) {
         echo json_encode(["message" => "Logout successful", "userId" => $userId]);
     }else{

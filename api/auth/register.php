@@ -1,13 +1,13 @@
 <?php
-header('Content-Type: application/json');
+// header('Content-Type: application/json');
 
 // DB connection
-include_once '../../connection.php';
+include_once '../connection.php';
 
 // Get input
-$email = trim($_GET['email'] ?? '');
-$password = trim($_GET['password'] ?? '');
-$username = trim($_GET['username'] ?? '');
+$email = trim($_POST['email'] ?? '');
+$password = trim($_POST['password'] ?? '');
+$username = trim($_POST['username'] ?? '');
 
 if (!$email || !$password || !$username) {
     http_response_code(400);
