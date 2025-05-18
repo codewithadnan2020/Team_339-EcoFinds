@@ -1,0 +1,40 @@
+<?php
+header('Content-Type: application/json');
+
+// DB connection
+$conn = mysqli_connect("localhost", "root", "", "ecofinds");
+
+// Get input
+$email = trim($_GET['email'] ?? '');
+$password = trim($_GET['password'] ?? '');
+
+if (!$email || !$password) {
+    http_response_code(400);
+    echo json_encode(["error" => "All fields are required"]);
+    exit;
+}
+
+// Check if user exists
+$check = mysqli_query($conn, "SELECT id FROM users WHERE email = '$email'");
+if (mysqli_num_rows($check) > 0) {
+    // Fetch user data
+    $user = mysqli_fetch_assoc($check);
+    $userId = $user['id'];
+
+    // Verify password
+    $passwordCheck = mysqli_query($conn, "SELECT password_hash FROM users WHERE id = '$userId'");
+    $passwordData = mysqli_fetch_assoc($passwordCheck);
+    
+    if (password_verify($password, $passwordData['password_hash'])) {
+        echo json_encode(["message" => "Login successful", "userId" => $userId]);
+    } else {
+        http_response_code(401);
+        echo json_encode(["error" => "Invalid password"]);
+        exit;
+    }
+}else{
+    http_response_code(409);
+    echo json_encode(["error" => "Email not registered"]);
+    exit;
+}
+?>
