@@ -27,7 +27,10 @@ if (mysqli_num_rows($check) > 0) {
 $hashed = password_hash($password, PASSWORD_BCRYPT);
 $sql = "INSERT INTO users (email, password_hash, username) VALUES ('$email', '$hashed', '$username')";
 if (mysqli_query($conn, $sql)) {
-    echo json_encode(["message" => "Registration successful"]);
+    $checkRegistration = mysqli_query($conn, "SELECT id FROM users WHERE email = '$email'");
+    $user = mysqli_fetch_assoc($checkRegistration);
+    $userId = $user['id'];
+    echo json_encode(["message" => "Registration successful", "userId"=>$userId]);
 } else {
     http_response_code(500);
     echo json_encode(["error" => "Error: " . mysqli_error($conn)]);

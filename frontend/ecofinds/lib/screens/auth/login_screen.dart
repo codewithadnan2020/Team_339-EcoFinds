@@ -1,9 +1,12 @@
 import 'dart:convert';
+
+import 'package:ecofinds/core/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../core/constants.dart';
+import '../home/home_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,13 +16,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailCtrl = TextEditingController();
-  final TextEditingController passCtrl = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
   bool isLoading = false;
 
   void handleLogin() async {
-    final email = emailCtrl.text.trim();
-    final password = passCtrl.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
       Fluttertoast.showToast(msg: "All fields are required");
@@ -31,19 +35,19 @@ class _LoginScreenState extends State<LoginScreen> {
     final url = Uri.parse('$baseUrl/auth/login.php');
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({"email": email, "password": password}),
+      body: {"email": email, "password": password},
     );
 
     setState(() => isLoading = false);
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final userId = data['user_id'];
+      final userId = data['userId'];
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_id', userId);
       Fluttertoast.showToast(msg: "Login successful");
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
     } else {
       final error = jsonDecode(response.body)['error'] ?? 'Login failed';
       Fluttertoast.showToast(msg: error);
@@ -53,34 +57,58 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("EcoFinds Login")),
+      appBar: AppBar(title: const Text('Login')),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              controller: emailCtrl,
-              decoration: const InputDecoration(labelText: "Email"),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: passCtrl,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: "Password"),
+            const Text(
+              'Welcome back!',
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
-            isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-                    onPressed: handleLogin,
-                    child: const Text("Login"),
-                  ),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: () {
-                // TODO: Navigate to Register screen
-              },
-              child: const Text("Don't have an account? Register"),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: isLoading ? null : handleLogin,
+                child: isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Login'),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                  );
+                },
+                child: const Text("Don't have an account? Register"),
+              ),
             )
           ],
         ),

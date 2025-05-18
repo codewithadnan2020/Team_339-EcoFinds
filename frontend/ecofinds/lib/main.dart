@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:ecofinds/core/constants.dart';
-import 'package:ecofinds/screens/auth/login_screen.dart';
-import 'package:ecofinds/screens/home/home_screen.dart';
+import 'core/constants.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   runApp(const EcoFindsApp());
@@ -15,15 +14,12 @@ class EcoFindsApp extends StatelessWidget {
     return MaterialApp(
       title: 'EcoFinds',
       theme: ThemeData(
-        primarySwatch: Colors.green,
-        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
+        useMaterial3: true,
+        fontFamily: 'Roboto',
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: '/login',
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/home': (context) => const HomeScreen(),
-      },
+      home: const SplashScreen(),
     );
   }
 }
