@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class AddProductScreen extends StatefulWidget {
   AddProductScreen({super.key});
@@ -17,13 +18,21 @@ class _AddProductScreenState extends State<AddProductScreen> {
   TextEditingController _nameCtrl = TextEditingController();
   TextEditingController _descCtrl = TextEditingController();
   TextEditingController _priceCtrl = TextEditingController();
+  TextEditingController _qtyCtrl = TextEditingController();
   TextEditingController _imageCtrl = TextEditingController();
   TextEditingController _selectedCategory = TextEditingController();
   bool _isSubmitting = false;
+  List<dynamic> categories = [];
 
   @override
   void initState() {
     super.initState();
+    // fetchCategory();
+    fetchCategory().then((cats) {
+      setState(() {
+        categories = cats;
+      });
+    });
   }
 
   @override
@@ -33,6 +42,17 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _priceCtrl.dispose();
     _imageCtrl.dispose();
     super.dispose();
+  }
+
+  Future<List<String>> fetchCategory() async {
+    var res = await http.get(Uri.parse(
+        'http://192.168.242.110/ecofinds/api/products/categories.php'));
+    if (res.statusCode == 200) {
+      // Assuming the API returns a JSON array of strings
+      return List<String>.from(jsonDecode(res.body));
+    } else {
+      return [];
+    }
   }
 
   Future<void> _handleSubmit() async {
@@ -71,18 +91,48 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Product')),
+      appBar: AppBar(title: Text('Add Product'), backgroundColor: Colors.white,),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(defaultPadding),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
+              TypeAheadField(
+                suggestionsCallback: (search) async {
+                  // Optionally filter categories by search
+                  if (search.isEmpty) return categories;
+                  return categories
+                      .where((cat) =>
+                          cat.toLowerCase().contains(search.toLowerCase()))
+                      .toList();
+                },
+                builder: (context, controller, focusNode) {
+                  return TextFormField(
+                      readOnly: true,
+                      controller: _selectedCategory,
+                      focusNode: focusNode,
+                      autofocus: false,
+                      decoration: InputDecoration(
+                        labelText: 'Product  Category',
+                      ),
+                      validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                      );
+                },
+                itemBuilder: (context, value) {
+                  return ListTile(
+                    title: Text(value),
+                  );
+                },
+                onSelected: (value) {
+                  _selectedCategory.text = value;
+                },
+              ),
+              const SizedBox(height: 12),
               TextFormField(
                 controller: _nameCtrl,
                 decoration: const InputDecoration(labelText: 'Product Name'),
-                validator: (val) =>
-                    val == null || val.isEmpty ? 'Required' : null,
+                validator: (val) => val == null || val.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -102,11 +152,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     : null,
               ),
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _selectedCategory,
-                decoration: const InputDecoration(labelText: 'Category'),
-              ),
-              const SizedBox(height: 12),
+              // TextFormField(
+              //   controller: _selectedCategory,
+              //   decoration: const InputDecoration(labelText: 'Category'),
+              // ),
               TextFormField(
                 controller: _imageCtrl,
                 decoration: const InputDecoration(labelText: 'Image URL'),
@@ -117,8 +166,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
               _isSubmitting
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
+                    style: const ButtonStyle(
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10)))),
+                      backgroundColor: WidgetStatePropertyAll(AppColors.primary),
+                      foregroundColor: WidgetStatePropertyAll(Colors.white)
+                    ),
                       onPressed: _handleSubmit,
-                      child: Text('Add'),
+                      child: const Text('Add Product'),
                     )
             ],
           ),

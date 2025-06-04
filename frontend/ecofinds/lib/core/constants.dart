@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 /// App colors used throughout the app
 class AppColors {
-  static const Color primary = Color(0xFF4CAF50); // Green shade for eco-friendly vibes
-  static const Color primaryDark = Color(0xFF388E3C);
+  // static const Color primary = Color(0xFF4CAF50); // Green shade for eco-friendly vibes
+  static const Color primary = Color.fromARGB(255, 76, 99, 175); // Green shade for eco-friendly vibes
+  static const Color primaryDark = Color.fromARGB(255, 56, 82, 142);
   static const Color accent = Color(0xFFFFC107); // Amber for highlights
   static const Color background = Color(0xFFF5F5F5);
   static const Color textPrimary = Color(0xFF212121);
@@ -71,4 +72,8 @@ const List<String> bannerImages = [
 const double defaultPadding = 16.0;
 const double borderRadius = 12.0;
 
-const String baseUrl = "http://192.168.152.110/ecofinds/api";
+const String baseUrl = "http://192.168.242.110/ecofinds/api";
+
+bool emailValidator(email){
+  return RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$').hasMatch(email);
+}

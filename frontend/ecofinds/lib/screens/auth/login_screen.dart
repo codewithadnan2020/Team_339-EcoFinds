@@ -18,6 +18,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool emailError = false;
+  String emailErrorMsg = '';
+  bool passwordError = false;
+  String passwordErrorMsg = '';
 
   bool isLoading = false;
 
@@ -26,7 +30,26 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      Fluttertoast.showToast(msg: "All fields are required");
+      setState(() {
+        if (email.isEmpty) {
+          emailError = true;
+          emailErrorMsg = "All fields are required";
+        } else if(emailValidator(email) == false) {
+          emailError = true;
+          emailErrorMsg = "Please Enter a valid Email ID";
+        }else{
+          emailError = false;
+          emailErrorMsg = "";
+        }
+        if (password.isEmpty) {
+          passwordError = true;
+          passwordErrorMsg = "All fields are required";
+        } else {
+          passwordError = false;
+          passwordErrorMsg = "";
+        }
+      });
+      // Fluttertoast.showToast(msg: "All fields are required");
       return;
     }
 
@@ -50,7 +73,11 @@ class _LoginScreenState extends State<LoginScreen> {
           context, MaterialPageRoute(builder: (context) => const HomeScreen()));
     } else {
       final error = jsonDecode(response.body)['error'] ?? 'Login failed';
-      Fluttertoast.showToast(msg: error);
+      setState(() {
+        passwordError = true;
+        passwordErrorMsg = error.toString();
+      });
+      // Fluttertoast.showToast(msg: error);
     }
   }
 
@@ -75,6 +102,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
+            Visibility(
+              visible: emailError,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(emailErrorMsg,
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold)),
+                  SizedBox(
+                    height: 10,
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
             TextField(
               controller: passwordController,
@@ -84,10 +127,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 border: OutlineInputBorder(),
               ),
             ),
+            Visibility(
+              visible: passwordError,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(passwordErrorMsg,
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold)),
+                  SizedBox(
+                    height: 10,
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                style: const ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(Color(0xFF4CAF50)),
+                    foregroundColor: WidgetStatePropertyAll(Colors.white)),
                 onPressed: isLoading ? null : handleLogin,
                 child: isLoading
                     ? const SizedBox(

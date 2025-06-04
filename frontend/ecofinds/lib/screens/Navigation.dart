@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:ecofinds/screens/auth/login_screen.dart';
 import 'package:ecofinds/screens/cart_screen.dart';
+import 'package:ecofinds/screens/home_screen.dart';
 import 'package:ecofinds/screens/mylisting.dart';
+import 'package:http/http.dart' as http;
 import 'package:ecofinds/screens/purchase_history.dart';
 import 'package:flutter/material.dart';
 // import 'package:ecofinds/screens/cart/cart_screen.dart';
@@ -10,16 +14,17 @@ import 'package:flutter/material.dart';
 import 'package:ecofinds/core/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Dummy user data – replace with real data later
-    final userName = 'John Doe';
-    final userEmail = 'john@example.com';
-    final profileInitials = userName.isNotEmpty ? userName[0] : '?';
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
 
+class _DashboardScreenState extends State<DashboardScreen> {
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Account'),
@@ -31,39 +36,20 @@ class DashboardScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // User Info Section
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: AppColors.primary,
-                  child: Text(
-                    profileInitials,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      userName,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(userEmail),
-                  ],
-                )
-              ],
-            ),
-            const SizedBox(height: 32),
+  const SizedBox(height: 32),
 
             // Navigation List
+            _buildNavItem(
+              context,
+              icon: Icons.home,
+              label: 'Home',
+              onTap: () => {
+                Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+              )
+              },
+            ),
             _buildNavItem(
               context,
               icon: Icons.inventory,

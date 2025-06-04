@@ -150,18 +150,6 @@ class _CartScreenState extends State<CartScreen> {
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('Total:',
-                                  style: TextStyle(fontSize: 18)),
-                              Text('₹${_calculateTotal().toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18)),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size.fromHeight(50),

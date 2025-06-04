@@ -18,6 +18,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool nameError = false;
+  String nameErrorMsg = '';
+  bool emailError = false;
+  String emailErrorMsg = '';
+  bool passwordError = false;
+  String passwordErrorMsg = '';
 
   bool isLoading = false;
 
@@ -27,7 +33,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final password = passwordController.text.trim();
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
-      Fluttertoast.showToast(msg: "All fields are required");
+
+        if (name.isEmpty) {
+          nameError = true;
+          nameErrorMsg = "All fields are required";
+        } else {
+          nameError = false;
+          nameErrorMsg = "";
+        }
+        if (email.isEmpty) {
+          emailError = true;
+          emailErrorMsg = "All fields are required";
+        } else if(emailValidator(email) == false) {
+          emailError = true;
+          emailErrorMsg = "Please Enter a valid Email ID";
+        } else{
+          emailError = false;
+          emailErrorMsg = "";
+        }
+        if (password.isEmpty) {
+          passwordError = true;
+          passwordErrorMsg = "All fields are required";
+        } else {
+          passwordError = false;
+          passwordErrorMsg = "";
+        }
+      // Fluttertoast.showToast(msg: "All fields are required");
       return;
     }
 
@@ -55,40 +86,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           context, MaterialPageRoute(builder: (context) => const HomeScreen()));
     } else {
       final error = jsonDecode(response.body)['error'] ?? 'Registration failed';
-      Fluttertoast.showToast(msg: error);
-    }
-  }
-
-  void handleLogin() async {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      Fluttertoast.showToast(msg: "All fields are required");
-      return;
-    }
-
-    setState(() => isLoading = true);
-
-    final url = Uri.parse('$baseUrl/auth/login.php');
-    final response = await http.post(
-      url,
-      body: {"email": email, "password": password},
-    );
-
-    setState(() => isLoading = false);
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final userId = data['userId'];
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_id', userId);
-      Fluttertoast.showToast(msg: "Login successful");
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-    } else {
-      final error = jsonDecode(response.body)['error'] ?? 'Login failed';
-      Fluttertoast.showToast(msg: error);
+      setState(() {
+        passwordError = true;
+        passwordErrorMsg = error.toString();
+      });
+      // Fluttertoast.showToast(msg: error);
     }
   }
 
@@ -138,6 +140,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(AppColors.primary),
+                    foregroundColor: WidgetStatePropertyAll(Colors.white)
+                  ),
                   onPressed: isLoading ? null : handleRegister,
                   child: isLoading
                       ? const SizedBox(
