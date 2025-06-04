@@ -126,7 +126,14 @@ class _ProductDetailState extends State<ProductDetail> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image
-            SizedBox(
+           
+            // Description
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                     SizedBox(
               width: double.infinity,
               height: 250,
               child: Image.network(
@@ -152,12 +159,11 @@ class _ProductDetailState extends State<ProductDetail> {
 
             const SizedBox(height: 16),
 
-            // Description
-            Expanded(
-              child: SingleChildScrollView(
-                child: Text(
-                  _product['description'],
-                  style: AppTextStyles.bodyText,
+                    Text(
+                      _product['description'],
+                      style: AppTextStyles.bodyText,
+                    ),
+                  ],
                 ),
               ),
             ),

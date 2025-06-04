@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:ecofinds/screens/Navigation.dart';
+import 'package:ecofinds/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 // import 'package:ecofinds/models/product.dart';
@@ -17,6 +19,7 @@ class CartScreen extends StatefulWidget {
 class _CartScreenState extends State<CartScreen> {
   List<dynamic> _cartItems = [];
   bool _isLoading = true;
+  double _cartTotal = 0;
 
   @override
   void initState() {
@@ -37,6 +40,9 @@ class _CartScreenState extends State<CartScreen> {
         setState(() {
           _cartItems = data;
           _isLoading = false;
+          for (var cartItem in data) {
+            _cartTotal += double.parse(cartItem["price"]);
+          }
         });
       } else {
         setState(() => _isLoading = false);
@@ -111,10 +117,45 @@ class _CartScreenState extends State<CartScreen> {
     // }
   }
 
+  void _removeFromCart(productId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userId = prefs.getString('user_id');
+    final response =
+        await http.post(Uri.parse('$baseUrl/cart/remove.php'), body: {
+      "product_id": productId,
+      "user_id": userId,
+    });
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(jsonDecode(response.body)["message"])),
+      );
+      Navigator.push(context, MaterialPageRoute(builder: (c) {
+        return CartScreen();
+      }));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(jsonDecode(response.body)["error"])),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Cart')),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const HomeScreen(),
+              ),
+            );
+          }, // Open side menu
+        ),
+        title: const Text('My Cart')
+        ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _cartItems.isEmpty
@@ -132,14 +173,16 @@ class _CartScreenState extends State<CartScreen> {
                                     width: 50, height: 50)
                                 : const Icon(Icons.image, size: 50),
                             title: Text(product["title"]),
-                            subtitle: Text('₹${product["price"]} × 1'),
+                            subtitle: Text('₹${product["price"]}'),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                // IconButton(
-                                //   onPressed: () => _removeFromCart(product),
-                                //   icon: const Icon(Icons.delete, color: Colors.red),
-                                // ),
+                                IconButton(
+                                  onPressed: () =>
+                                      _removeFromCart(product["id"]),
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
+                                ),
                               ],
                             ),
                           );
@@ -149,16 +192,42 @@ class _CartScreenState extends State<CartScreen> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size.fromHeight(50),
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Total: ',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 19),
+                                  ),
+                                  Text(
+                                    'Rs. ${_cartTotal.toString()}',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 19),
+                                  ),
+                                ],
                               ),
-                            icon: const Icon(Icons.shopping_bag),
-                            label: const Text('Checkout'),
-                            onPressed: _checkout,
+                              SizedBox(
+                                height: 10,
+                              ),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                    minimumSize: const Size.fromHeight(50),
+                                    backgroundColor: AppColors.primary,
+                                    foregroundColor: Colors.white),
+                                icon: const Icon(Icons.shopping_bag),
+                                label: const Text('Checkout'),
+                                onPressed: _checkout,
+                              ),
+                            ],
                           ),
                         ],
                       ),

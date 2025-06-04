@@ -4,6 +4,7 @@ import 'package:ecofinds/core/constants.dart';
 import 'package:ecofinds/screens/Navigation.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecofinds/screens/add_edit_product.dart';
+import 'package:ecofinds/screens/auction_products.dart';
 import 'package:ecofinds/screens/cart_screen.dart';
 import 'package:ecofinds/screens/product_screen.dart';
 import 'package:ecofinds/screens/shakingIcon.dart';
@@ -31,14 +32,43 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     getUser();
     _searchController.addListener(_onSearchChanged);
-  updateCartCount(); // Fetch cart count on init
+    updateCartCount(); // Fetch cart count on init
   }
- void updateCartCount() async {
+
+  int _selectedIndex = 0; // Add this at the top of your _HomeScreenState
+
+  void _onNavBarTapped(int index) async {
+    if (index == 1) {
+      // Navigate to Live Auctions screen
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? userId = prefs.getString('user_id') ?? '0';
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AuctionProductsScreen(),
+        ),
+      );
+    } else {
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+  }
+
+  void updateCartCount() async {
     int count = await getCartCount();
     setState(() {
       cartCount = count;
     });
   }
+
   void getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
@@ -117,9 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 10,
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        actions: [
-          CartCount(context, cartCount)
-        ],
+        actions: [CartCount(context, cartCount)],
       ),
       body: Container(
         color: Colors.white,
@@ -181,6 +209,12 @@ class _HomeScreenState extends State<HomeScreen> {
               // ...existing code...
 
               Expanded(
+                child: RefreshIndicator(
+                onRefresh: () async {
+                  getUser();
+                  updateCartCount();
+                  setState(() {}); // Force rebuild if needed
+                },
                 child: ListView.builder(
                   itemCount: categories
                       .where((cat) =>
@@ -288,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                 ),
-              ),
+              )),
               // const Text(
               //   'Products',
               //   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
@@ -299,12 +333,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onNavBarTapped,
         items: [
-        BottomNavigationBarItem(label: "Home", icon: Icon(Icons.home)),
-        BottomNavigationBarItem(label: "Live Auctions", icon: ShakingIcon(
-    icon: Icon(Icons.gavel, color: Colors.red),
-  ),)
-      ]),
+          BottomNavigationBarItem(label: "Home", icon: Icon(Icons.home)),
+          BottomNavigationBarItem(
+            label: "Live Auctions",
+            icon: ShakingIcon(
+              icon: Icon(Icons.gavel, color: Colors.red),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

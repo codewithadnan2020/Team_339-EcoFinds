@@ -8,26 +8,13 @@ $user_id = $_POST['user_id'];
 
 
 // Input
-$username = trim($_POST['username'] ?? '');
-$profile_image = trim($_POST['profile_image'] ?? '');
+$username = $_POST['username'];
+$email = $_POST['email'];
+$card_number = $_POST['card_number'];
+$cvc_number = $_POST['cvc_number'];
+$expiry = $_POST['expiry'];
 
-$updates = [];
-
-if ($username !== '') {
-    $updates[] = "username = '" . mysqli_real_escape_string($conn, $username) . "'";
-}
-
-if ($profile_image !== '') {
-    $updates[] = "profile_image = '" . mysqli_real_escape_string($conn, $profile_image) . "'";
-}
-
-if (empty($updates)) {
-    http_response_code(400);
-    echo json_encode(["error" => "No data to update"]);
-    exit;
-}
-
-$update_sql = "UPDATE users SET " . implode(", ", $updates) . " WHERE id = '$user_id'";
+$update_sql = "UPDATE users SET `username`='$username', `email`='$email', `card_number`='$card_number', `cvc_number`='$cvc_number', `expiry`='$expiry'  WHERE id = '$user_id'";
 if (mysqli_query($conn, $update_sql)) {
     echo json_encode(["message" => "Profile updated successfully"]);
 } else {

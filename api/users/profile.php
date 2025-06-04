@@ -7,7 +7,7 @@ $user_id = $_POST['user_id'];
 
 // Get user data
 $result = mysqli_query($conn, "
-    SELECT id, email, username, profile_image, login_status, created_at
+    SELECT id, email, username, card_number, cvc_number,expiry, profile_image, login_status, created_at
     FROM users
     WHERE id = '$user_id'
 ");

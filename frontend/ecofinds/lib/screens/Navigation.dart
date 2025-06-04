@@ -4,6 +4,7 @@ import 'package:ecofinds/screens/auth/login_screen.dart';
 import 'package:ecofinds/screens/cart_screen.dart';
 import 'package:ecofinds/screens/home_screen.dart';
 import 'package:ecofinds/screens/mylisting.dart';
+import 'package:ecofinds/screens/profile.dart';
 import 'package:http/http.dart' as http;
 import 'package:ecofinds/screens/purchase_history.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const HomeScreen()),
+              )
+              },
+            ),
+            _buildNavItem(
+              context,
+              icon: Icons.person,
+              label: 'Update Profile',
+              onTap: () => {
+                Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const UpdateProfileScreen()),
               )
               },
             ),
