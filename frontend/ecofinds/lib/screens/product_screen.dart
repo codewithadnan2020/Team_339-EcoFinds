@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:ecofinds/screens/cart_screen.dart';
+import 'package:ecofinds/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +18,7 @@ class ProductDetail extends StatefulWidget {
 
 class _ProductDetailState extends State<ProductDetail> {
   Map _product = {};
+  int? cartCount;
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -23,6 +26,13 @@ class _ProductDetailState extends State<ProductDetail> {
   void initState() {
     super.initState();
     _fetchProduct();
+ updateCartCount(); // Fetch cart count on init
+  }
+ void updateCartCount() async {
+    int count = await getCartCount();
+    setState(() {
+      cartCount = count;
+    });
   }
 
   void _fetchProduct() async {
@@ -75,13 +85,16 @@ class _ProductDetailState extends State<ProductDetail> {
     print('${response.statusCode}');
 
     if (response.statusCode == 200) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(jsonDecode(response.body)["message"])),
-                  );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(jsonDecode(response.body)["message"])),
+      );
+      Navigator.push(context, MaterialPageRoute(builder: (c) {
+        return CartScreen();
+      }));
     } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(jsonDecode(response.body)["error"])),
-                  );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(jsonDecode(response.body)["error"])),
+      );
     }
   }
 
@@ -101,7 +114,12 @@ class _ProductDetailState extends State<ProductDetail> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(_product['title'])),
+      appBar: AppBar(
+        title: Text(_product['title']),
+        actions: [
+          CartCount(context, cartCount)
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(defaultPadding),
         child: Column(
@@ -148,6 +166,9 @@ class _ProductDetailState extends State<ProductDetail> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                style: ButtonStyle(
+                    backgroundColor: WidgetStatePropertyAll(AppColors.primary),
+                    foregroundColor: WidgetStatePropertyAll(Colors.white)),
                 onPressed: () {
                   // cartProvider.addItem(_product!);
                   _addToCart(widget.productId);

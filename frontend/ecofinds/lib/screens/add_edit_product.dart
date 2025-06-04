@@ -78,7 +78,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product added')),
       );
-      Navigator.pop(context, true);
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return AddProductScreen();
+      }));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to save product: $e')),
@@ -91,7 +93,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Product'), backgroundColor: Colors.white,),
+      appBar: AppBar(
+        title: Text('Add Product'),
+        backgroundColor: Colors.white,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(defaultPadding),
         child: Form(
@@ -109,15 +114,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 },
                 builder: (context, controller, focusNode) {
                   return TextFormField(
-                      readOnly: true,
-                      controller: _selectedCategory,
-                      focusNode: focusNode,
-                      autofocus: false,
-                      decoration: InputDecoration(
-                        labelText: 'Product  Category',
-                      ),
-                      validator: (val) => val == null || val.isEmpty ? 'Required' : null,
-                      );
+                    readOnly: true,
+                    controller: _selectedCategory,
+                    focusNode: focusNode,
+                    autofocus: false,
+                    decoration: InputDecoration(
+                      labelText: 'Product  Category',
+                    ),
+                    validator: (val) =>
+                        val == null || val.isEmpty ? 'Required' : null,
+                  );
                 },
                 itemBuilder: (context, value) {
                   return ListTile(
@@ -132,7 +138,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
               TextFormField(
                 controller: _nameCtrl,
                 decoration: const InputDecoration(labelText: 'Product Name'),
-                validator: (val) => val == null || val.isEmpty ? 'Required' : null,
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -166,11 +173,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
               _isSubmitting
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
-                    style: const ButtonStyle(
-                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10)))),
-                      backgroundColor: WidgetStatePropertyAll(AppColors.primary),
-                      foregroundColor: WidgetStatePropertyAll(Colors.white)
-                    ),
+                      style: const ButtonStyle(
+                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)))),
+                          backgroundColor:
+                              WidgetStatePropertyAll(AppColors.primary),
+                          foregroundColor:
+                              WidgetStatePropertyAll(Colors.white)),
                       onPressed: _handleSubmit,
                       child: const Text('Add Product'),
                     )

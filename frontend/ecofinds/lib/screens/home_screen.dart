@@ -6,6 +6,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecofinds/screens/add_edit_product.dart';
 import 'package:ecofinds/screens/cart_screen.dart';
 import 'package:ecofinds/screens/product_screen.dart';
+import 'package:ecofinds/screens/shakingIcon.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<dynamic> allProducts = [];
   List<dynamic> products = [];
+  int? cartCount;
   TextEditingController _searchController = TextEditingController();
   List<String> categories = [];
   Map<String, List<dynamic>> productsByCategory = {};
@@ -29,10 +31,18 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     getUser();
     _searchController.addListener(_onSearchChanged);
+  updateCartCount(); // Fetch cart count on init
+  }
+ void updateCartCount() async {
+    int count = await getCartCount();
+    setState(() {
+      cartCount = count;
+    });
   }
   void getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
+
     fetchCategory().then((cats) {
       setState(() {
         categories = cats;
@@ -42,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
   }
+
   Future<List<String>> fetchCategory() async {
     var res = await http.get(Uri.parse(
         'http://192.168.242.110/ecofinds/api/products/categories.php'));
@@ -53,8 +64,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void fetchCategoryProducts(String category, String userId) async {
-    final response = await http
-        .post(Uri.parse('$baseUrl/products/list.php?user_id=$userId&category=$category'));
+    final response = await http.post(Uri.parse(
+        '$baseUrl/products/list.php?user_id=$userId&category=$category'));
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       setState(() {
@@ -68,7 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
     setState(() {
-  
       if (query.isEmpty) {
         // Re-fetch all products for each category
         for (var category in categories) {
@@ -108,18 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () {
-              // Navigate to cart
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CartScreen(),
-                ),
-              );
-            }, // Navigate to cart
-          )
+          CartCount(context, cartCount)
         ],
       ),
       body: Container(
@@ -299,9 +298,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(items: [
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
         BottomNavigationBarItem(label: "Home", icon: Icon(Icons.home)),
-        BottomNavigationBarItem(label: "Profile", icon: Icon(Icons.person_2))
+        BottomNavigationBarItem(label: "Live Auctions", icon: ShakingIcon(
+    icon: Icon(Icons.gavel, color: Colors.red),
+  ),)
       ]),
     );
   }

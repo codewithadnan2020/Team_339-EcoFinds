@@ -153,7 +153,9 @@ class _CartScreenState extends State<CartScreen> {
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size.fromHeight(50),
-                            ),
+                              backgroundColor: AppColors.primary,
+                              foregroundColor: Colors.white
+                              ),
                             icon: const Icon(Icons.shopping_bag),
                             label: const Text('Checkout'),
                             onPressed: _checkout,
