@@ -26,9 +26,10 @@ class _ProductDetailState extends State<ProductDetail> {
   void initState() {
     super.initState();
     _fetchProduct();
- updateCartCount(); // Fetch cart count on init
+    updateCartCount(); // Fetch cart count on init
   }
- void updateCartCount() async {
+
+  void updateCartCount() async {
     int count = await getCartCount();
     setState(() {
       cartCount = count;
@@ -51,6 +52,7 @@ class _ProductDetailState extends State<ProductDetail> {
         setState(() {
           final data = jsonDecode(response.body);
           _product = data;
+          print('$baseUrl/products/${_product['image_url']}');
           print('hiiiii');
           print('hiiiii');
           print('hiiiii');
@@ -89,7 +91,7 @@ class _ProductDetailState extends State<ProductDetail> {
         SnackBar(content: Text(jsonDecode(response.body)["message"])),
       );
       Navigator.push(context, MaterialPageRoute(builder: (c) {
-        return CartScreen();
+        return ProductDetail(productId: widget.productId);
       }));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -116,9 +118,7 @@ class _ProductDetailState extends State<ProductDetail> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_product['title']),
-        actions: [
-          CartCount(context, cartCount)
-        ],
+        actions: [CartCount(context, cartCount)],
       ),
       body: Padding(
         padding: const EdgeInsets.all(defaultPadding),
@@ -126,38 +126,39 @@ class _ProductDetailState extends State<ProductDetail> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image
-           
+
             // Description
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                     SizedBox(
-              width: double.infinity,
-              height: 250,
-              child: Image.network(
-                _product['image_url'],
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Center(child: Icon(Icons.broken_image, size: 60)),
-              ),
-            ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 250,
+                      child: Image.network(
+                        '$baseUrl/products/${_product['image_url']}',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                                child: Icon(Icons.broken_image, size: 60)),
+                      ),
+                    ),
 
-            const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-            // Name & Price
-            Text(
-              _product['title'],
-              style: AppTextStyles.heading1,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "\Rs.${_product['price'].toString()}",
-              style: AppTextStyles.priceText,
-            ),
+                    // Name & Price
+                    Text(
+                      _product['title'],
+                      style: AppTextStyles.heading1,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "\Rs.${_product['price'].toString()}",
+                      style: AppTextStyles.priceText,
+                    ),
 
-            const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     Text(
                       _product['description'],

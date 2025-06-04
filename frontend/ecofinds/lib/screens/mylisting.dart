@@ -82,111 +82,116 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
 
     if (confirm == true) {}
   }
-void _showAuctionModal(String productId, String userId) {
-  DateTime? selectedDateTime;
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setModalState) {
-          return AlertDialog(
-            title: const Text('Start Auction'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Select Auction Final Time'),
+  void _showAuctionModal(String productId, String userId) {
+    DateTime? selectedDateTime;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return AlertDialog(
+              title: const Text('Start Auction'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Select Auction Final Time'),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      )),
+                      backgroundColor:
+                          WidgetStatePropertyAll(AppColors.primary),
+                      foregroundColor: WidgetStatePropertyAll(Colors.white),
+                    ),
+                    onPressed: () async {
+                      final now = DateTime.now();
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: now,
+                        firstDate: now,
+                        lastDate: DateTime(now.year + 2),
+                      );
+                      if (date != null) {
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                        );
+                        if (time != null) {
+                          setModalState(() {
+                            selectedDateTime = DateTime(
+                              date.year,
+                              date.month,
+                              date.day,
+                              time.hour,
+                              time.minute,
+                            );
+                          });
+                        }
+                      }
+                    },
+                    child: Text(selectedDateTime == null
+                        ? 'Select Date & Time'
+                        : selectedDateTime.toString()),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
                 ElevatedButton(
                   style: ButtonStyle(
                     shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(5.0),
-  )),
+                      borderRadius: BorderRadius.circular(5.0),
+                    )),
                     backgroundColor: WidgetStatePropertyAll(AppColors.primary),
                     foregroundColor: WidgetStatePropertyAll(Colors.white),
                   ),
-                  onPressed: () async {
-                    final now = DateTime.now();
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: now,
-                      firstDate: now,
-                      lastDate: DateTime(now.year + 2),
-                    );
-                    if (date != null) {
-                      final time = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now(),
-                      );
-                      if (time != null) {
-                        setModalState(() {
-                          selectedDateTime = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            time.hour,
-                            time.minute,
-                          );
-                        });
-                      }
-                    }
-                  },
-                  child: Text(selectedDateTime == null
-                      ? 'Select Date & Time'
-                      : selectedDateTime.toString()),
+                  onPressed: selectedDateTime == null
+                      ? null
+                      : () async {
+                          // Call your auction start API here
+                          await _startAuction(
+                              productId, userId, selectedDateTime!);
+                          Navigator.pop(context);
+                        },
+                  child: const Text('Submit'),
                 ),
               ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                  style: ButtonStyle(
-                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(5.0),
-  )),
-                    backgroundColor: WidgetStatePropertyAll(AppColors.primary),
-                    foregroundColor: WidgetStatePropertyAll(Colors.white),
-                  ),
-                onPressed: selectedDateTime == null
-                    ? null
-                    : () async {
-                        // Call your auction start API here
-                        await _startAuction(productId, userId, selectedDateTime!);
-                        Navigator.pop(context);
-                      },
-                child: const Text('Submit'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
-Future<void> _startAuction(String productId, String userId, DateTime dateTime) async {
-  // Replace with your actual API endpoint and parameters
-  final response = await http.post(
-    Uri.parse('$baseUrl/products/start_auction.php'),
-    body: {
-      'product_id': productId,
-      'user_id': userId,
-     'end_time': DateFormat('yyyy-MM-dd HH:mm').format(dateTime),
-    },
-  );
-  if (response.statusCode == 200) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Auction started!')),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to start auction: ${response.body}')),
+            );
+          },
+        );
+      },
     );
   }
-}
+
+  Future<void> _startAuction(
+      String productId, String userId, DateTime dateTime) async {
+    // Replace with your actual API endpoint and parameters
+    final response = await http.post(
+      Uri.parse('$baseUrl/products/start_auction.php'),
+      body: {
+        'product_id': productId,
+        'user_id': userId,
+        'end_time': DateFormat('yyyy-MM-dd HH:mm').format(dateTime),
+      },
+    );
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Auction started!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to start auction: ${response.body}')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,8 +209,11 @@ Future<void> _startAuction(String productId, String userId, DateTime dateTime) a
                           horizontal: 12, vertical: 6),
                       child: ListTile(
                         leading: product['image_url'] != null
-                            ? Image.network(product['image_url']!,
-                                width: 50, height: 50, fit: BoxFit.cover)
+                            ? Image.network(
+                                '$baseUrl/products/${product["image_url"]}'!,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover)
                             : const Icon(Icons.image, size: 50),
                         title: Text(product['title']),
                         subtitle: Text("₹${product['price']}"),
@@ -213,17 +221,25 @@ Future<void> _startAuction(String productId, String userId, DateTime dateTime) a
                           onSelected: (value) async {
                             if (value == 'delete') {
                               _deleteProduct(product["id"]);
+                            } else if (value == 'alter') {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return AddProductScreen(product: product);
+                              }));
                             } else if (value == 'auction') {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? userId = prefs.getString('user_id');
-    if (userId != null) {
-      _showAuctionModal(product["id"], userId);
-    }
-  }
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              String? userId = prefs.getString('user_id');
+                              if (userId != null) {
+                                _showAuctionModal(product["id"], userId);
+                              }
+                            }
                           },
                           itemBuilder: (context) => [
                             const PopupMenuItem(
                                 value: 'auction', child: Text('Start Auction')),
+                            const PopupMenuItem(
+                                value: 'alter', child: Text('Update Product')),
                             const PopupMenuItem(
                                 value: 'delete', child: Text('Delete')),
                           ],

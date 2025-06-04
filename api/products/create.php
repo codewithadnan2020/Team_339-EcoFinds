@@ -1,20 +1,51 @@
+
 <?php
 header('Content-Type: application/json');
-// DB connection
 include_once '../connection.php';
 
-$user_id = $_POST['user_id'];
-
-// Get request data
+$user_id = $_POST['user_id'] ?? '';
 $title = trim($_POST['title'] ?? '');
 $description = trim($_POST['description'] ?? '');
 $category_name = trim($_POST['category'] ?? '');
 $price = floatval($_POST['price'] ?? 0);
-$image_url = trim($_POST['image_url'] ?? '');
 
 if (!$title || !$category_name || $price <= 0) {
     http_response_code(400);
     echo json_encode(["error" => "Title, category, and valid price are required"]);
+    exit;
+}
+
+// Handle image upload
+$image_url = '';
+if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+    $uploads_dir = __DIR__ . '/uploads';
+    if (!is_dir($uploads_dir)) {
+        mkdir($uploads_dir, 0777, true);
+    }
+    $tmp_name = $_FILES['image']['tmp_name'];
+    $basename = basename($_FILES['image']['name']);
+    $ext = pathinfo($basename, PATHINFO_EXTENSION);
+    $filename = uniqid('img_', true) . '.' . $ext;
+    $target_path = $uploads_dir . '/' . $filename;
+    if (move_uploaded_file($tmp_name, $target_path)) {
+        $image_url = 'uploads/' . $filename;
+    } else {
+        http_response_code(500);
+        echo json_encode([
+            "error" => "Failed to upload image",
+            "tmp_name" => $tmp_name,
+            "target_path" => $target_path,
+            "php_error" => $_FILES['image']['error'],
+            "is_uploaded" => is_uploaded_file($tmp_name)
+        ]);
+        exit;
+    }
+} else {
+    http_response_code(400);
+    echo json_encode([
+        "error" => "Image is required or upload error",
+        "php_error" => $_FILES['image']['error'] ?? 'no file'
+    ]);
     exit;
 }
 

@@ -2,6 +2,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:ecofinds/core/constants.dart';
+import 'package:ecofinds/screens/bidingScreen.dart';
+import 'package:ecofinds/screens/home_screen.dart';
+import 'package:ecofinds/screens/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -34,6 +37,15 @@ class _AuctionProductsScreenState extends State<AuctionProductsScreen> {
     super.dispose();
   }
 
+  void _bidingProcess(productId,product) async {
+    Navigator.push(context, MaterialPageRoute(
+      builder: (context) => ProductBiding(
+        productId: product['id'].toString(), // or whatever your product id is
+        product: product,                    // pass the whole product map
+      ),
+    ),);
+  }
+
   Future<List<dynamic>> fetchProducts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userId = prefs.getString('user_id');
@@ -46,22 +58,24 @@ class _AuctionProductsScreenState extends State<AuctionProductsScreen> {
       throw Exception('Failed to load products');
     }
   }
-String getTimeLeft(String auctionEndTime) {
-  try {
-    final end = DateFormat('yyyy-MM-dd HH:mm').parse(auctionEndTime); // local time
-    final now = DateTime.now();
-    final diff = end.difference(now);
-    if (diff.isNegative) return 'Auction ended';
-    final hours = diff.inHours;
-    final minutes = diff.inMinutes % 60;
-    final seconds = diff.inSeconds % 60;
-    return '${hours.toString().padLeft(2, '0')}:'
-        '${minutes.toString().padLeft(2, '0')}:'
-        '${seconds.toString().padLeft(2, '0')}';
-  } catch (e) {
-    return 'Invalid time';
+
+  String getTimeLeft(String auctionEndTime) {
+    try {
+      final end =
+          DateFormat('yyyy-MM-dd HH:mm').parse(auctionEndTime); // local time
+      final now = DateTime.now();
+      final diff = end.difference(now);
+      if (diff.isNegative) return 'Auction ended';
+      final hours = diff.inHours;
+      final minutes = diff.inMinutes % 60;
+      final seconds = diff.inSeconds % 60;
+      return '${hours.toString().padLeft(2, '0')}:'
+          '${minutes.toString().padLeft(2, '0')}:'
+          '${seconds.toString().padLeft(2, '0')}';
+    } catch (e) {
+      return 'Invalid time';
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -93,10 +107,11 @@ String getTimeLeft(String auctionEndTime) {
               itemBuilder: (context, index) {
                 final p = products[index];
                 return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: ListTile(
                     leading: Image.network(
-                      p['image_url'],
+                      '$baseUrl/products/${p['image_url']}',
                       width: 60,
                       height: 60,
                       fit: BoxFit.cover,
@@ -115,6 +130,28 @@ String getTimeLeft(String auctionEndTime) {
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
                           ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            print(p["id"]);
+                            _bidingProcess(p["id"],p);
+                          },
+                      style: ButtonStyle(
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        )),
+                        backgroundColor:
+                            WidgetStatePropertyAll(AppColors.primary),
+                        foregroundColor: WidgetStatePropertyAll(Colors.white),
+                      ),
+                          child: Text('Place a bid',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              )),
                         ),
                       ],
                     ),
