@@ -60,7 +60,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
       // Fluttertoast.showToast(msg: "All fields are required");
     if(nameError || emailError || passwordError){
-      return;
+      return; 
+      
     }else{
 
     setState(() => isLoading = true);
