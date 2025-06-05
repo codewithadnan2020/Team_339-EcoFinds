@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ecofinds/screens/product_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:ecofinds/screens/add_edit_product.dart';
 import 'package:flutter/material.dart';
@@ -204,45 +205,65 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                   itemCount: products.length,
                   itemBuilder: (context, index) {
                     final product = products[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      child: ListTile(
-                        leading: product['image_url'] != null
-                            ? Image.network(
-                                '$baseUrl/products/${product["image_url"]}'!,
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.cover)
-                            : const Icon(Icons.image, size: 50),
-                        title: Text(product['title']),
-                        subtitle: Text("₹${product['price']}"),
-                        trailing: PopupMenuButton<String>(
-                          onSelected: (value) async {
-                            if (value == 'delete') {
-                              _deleteProduct(product["id"]);
-                            } else if (value == 'alter') {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return AddProductScreen(product: product);
-                              }));
-                            } else if (value == 'auction') {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              String? userId = prefs.getString('user_id');
-                              if (userId != null) {
-                                _showAuctionModal(product["id"], userId);
+                    return GestureDetector(
+                      onTap: () {
+                        print('Hi navigator');
+                        print('Hi navigator');
+                        print('Hi navigator');
+                        print('Hi navigator');
+                        print({
+                          'productOwnerId': product["user_id"],
+                          'productId': product["id"]
+                        });
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return ProductDetail(
+                              productOwnerId: product["user_id"],
+                              productId: product["id"]);
+                        }));
+                      },
+                      child: Card(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        child: ListTile(
+                          leading: product['image_url'] != null
+                              ? Image.network(
+                                  '$baseUrl/products/${product["image_url"]}'!,
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover)
+                              : const Icon(Icons.image, size: 50),
+                          title: Text(product['title']),
+                          subtitle: Text("₹${product['price']}"),
+                          trailing: PopupMenuButton<String>(
+                            onSelected: (value) async {
+                              if (value == 'delete') {
+                                _deleteProduct(product["id"]);
+                              } else if (value == 'alter') {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return AddProductScreen(product: product);
+                                }));
+                              } else if (value == 'auction') {
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                String? userId = prefs.getString('user_id');
+                                if (userId != null) {
+                                  _showAuctionModal(product["id"], userId);
+                                }
                               }
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                                value: 'auction', child: Text('Start Auction')),
-                            const PopupMenuItem(
-                                value: 'alter', child: Text('Update Product')),
-                            const PopupMenuItem(
-                                value: 'delete', child: Text('Delete')),
-                          ],
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                  value: 'auction',
+                                  child: Text('Start Auction')),
+                              const PopupMenuItem(
+                                  value: 'alter',
+                                  child: Text('Update Product')),
+                              const PopupMenuItem(
+                                  value: 'delete', child: Text('Delete')),
+                            ],
+                          ),
                         ),
                       ),
                     );

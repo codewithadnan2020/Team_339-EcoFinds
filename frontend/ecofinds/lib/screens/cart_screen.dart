@@ -278,7 +278,7 @@ class _CartScreenState extends State<CartScreen> {
                             onTap: () {
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
-                                return ProductDetail(productId: product["id"]);
+                                return ProductDetail(productId: product["id"], productOwnerId: product["user_id"],);
                               }));
                             },
                             child: ListTile(

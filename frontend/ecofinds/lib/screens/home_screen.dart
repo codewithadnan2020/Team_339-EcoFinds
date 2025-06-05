@@ -6,6 +6,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:ecofinds/screens/add_edit_product.dart';
 import 'package:ecofinds/screens/auction_products.dart';
 import 'package:ecofinds/screens/cart_screen.dart';
+import 'package:ecofinds/screens/notifications.dart';
 import 'package:ecofinds/screens/product_screen.dart';
 import 'package:ecofinds/screens/shakingIcon.dart';
 import 'package:http/http.dart' as http;
@@ -313,12 +314,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-
-  shape: const RoundedRectangleBorder(
-    borderRadius: BorderRadius.vertical(
-      bottom: Radius.circular(18),
-    ),
-  ),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(18),
+          ),
+        ),
         title: const Text('EcoFinds'),
         leading: IconButton(
           icon: const Icon(Icons.menu),
@@ -334,7 +334,16 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 10,
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        actions: [CartCount(context, cartCount)],
+        actions: [
+          CartCount(context, cartCount),
+          IconButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return NotificationsScreen();
+                }));
+              },
+              icon: Icon(Icons.notification_add))
+        ],
       ),
       body: Container(
         color: Colors.white,
@@ -512,7 +521,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                               MaterialPageRoute(
                                                 builder: (context) =>
                                                     ProductDetail(
-                                                        productId: item['id']),
+                                                  productId: item['id'],
+                                                  productOwnerId:
+                                                      item["user_id"],
+                                                ),
                                               ),
                                             );
                                           },
@@ -611,7 +623,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => ProductDetail(
-                                                productId: item['id']),
+                                                productId: item['id'],
+                                                productOwnerId:
+                                                    item["user_id"]),
                                           ),
                                         );
                                       },

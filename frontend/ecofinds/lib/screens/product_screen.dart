@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:ecofinds/screens/cart_screen.dart';
+import 'package:ecofinds/screens/chatScreen.dart';
 import 'package:ecofinds/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -8,9 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/constants.dart';
 
 class ProductDetail extends StatefulWidget {
+  final String productOwnerId;
   final String productId;
 
-  const ProductDetail({super.key, required this.productId});
+  const ProductDetail({super.key, required this.productOwnerId, required this.productId});
 
   @override
   State<ProductDetail> createState() => _ProductDetailState();
@@ -53,10 +55,6 @@ class _ProductDetailState extends State<ProductDetail> {
           final data = jsonDecode(response.body);
           _product = data;
           print('$baseUrl/products/${_product['image_url']}');
-          print('hiiiii');
-          print('hiiiii');
-          print('hiiiii');
-          print('hiiiii');
         });
       } else {
         setState(() => _errorMessage = 'Failed to load product');
@@ -91,7 +89,7 @@ class _ProductDetailState extends State<ProductDetail> {
         SnackBar(content: Text(jsonDecode(response.body)["message"])),
       );
       Navigator.push(context, MaterialPageRoute(builder: (c) {
-        return ProductDetail(productId: widget.productId);
+        return ProductDetail(productId: widget.productId, productOwnerId: widget.productOwnerId,);
       }));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -110,7 +108,9 @@ class _ProductDetailState extends State<ProductDetail> {
 
     if (_errorMessage != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Product Details')),
+        appBar: AppBar(
+          title: const Text('Product Details'),
+        ),
         body: Center(child: Text(_errorMessage!)),
       );
     }
@@ -171,9 +171,11 @@ class _ProductDetailState extends State<ProductDetail> {
 
             // Add to Cart Button
             SizedBox(
-              width: double.infinity,
+              width: 250,
               child: ElevatedButton(
                 style: ButtonStyle(
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)))),
                     backgroundColor: WidgetStatePropertyAll(AppColors.primary),
                     foregroundColor: WidgetStatePropertyAll(Colors.white)),
                 onPressed: () {
@@ -185,6 +187,16 @@ class _ProductDetailState extends State<ProductDetail> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton.small(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) { 
+            return ChatScreen(productOwnerId: widget.productOwnerId, );
+          }));
+        },
+        child: Icon(Icons.chat),
       ),
     );
   }

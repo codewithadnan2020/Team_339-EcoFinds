@@ -11,8 +11,7 @@ SELECT p.user_id, p.id, p.title, p.description, p.price, p.image_url, c.name AS 
 FROM products p
 JOIN categories c ON p.category_id = c.id
 JOIN users u ON p.user_id = u.id
-WHERE p.user_id != '$user_id' 
-  AND p.auction_end_time != ''
+WHERE p.auction_end_time != ''
   AND STR_TO_DATE(p.auction_end_time, '%Y-%m-%d %H:%i') > NOW()";
 
 if ($search !== '') {

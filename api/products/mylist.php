@@ -9,7 +9,7 @@ $search = mysqli_real_escape_string($conn, $_POST['search'] ?? '');
 $category = mysqli_real_escape_string($conn, $_POST['category'] ?? '');
 
 $sql = "
-SELECT p.id, p.title, p.description, p.price, p.image_url, c.name AS category, u.username
+SELECT p.id, p.user_id, p.title, p.description, p.price, p.image_url, c.name AS category, u.username
 FROM products p
 JOIN categories c ON p.category_id = c.id
 JOIN users u ON p.user_id = u.id

@@ -26,6 +26,7 @@ class _ProductBidingState extends State<ProductBiding> {
   String? _errorMessage;
   String timeLeft = '';
   Timer? _timer;
+  bool _bidable = false;
 
   // Example bid data
   double highestBid = 0.0;
@@ -385,9 +386,24 @@ class _ProductBidingState extends State<ProductBiding> {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    checkIfBidable();
     fetchBidDetails();
     fetchOngoingBids();
     _startTimer();
+  }
+
+  void checkIfBidable() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('user_id');
+    print('object');
+    print(widget.product["user_id"]);
+    print(userId);
+    print('object');
+    if (widget.product["user_id"] == userId) {
+      _bidable = false;
+    } else {
+      _bidable = true;
+    }
   }
 
   void fetchOngoingBids() async {
@@ -557,40 +573,66 @@ class _ProductBidingState extends State<ProductBiding> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Highest Bid: ₹$highestBid',
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-                        Text('Your Bid: ₹$myBid'),
-                        const SizedBox(height: 16),
-                        TextField(
-                          controller: _bidController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: 'Enter your bid',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                              shape:
-                                  WidgetStatePropertyAll(RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5.0),
-                              )),
-                              backgroundColor:
-                                  WidgetStatePropertyAll(AppColors.primary),
-                              foregroundColor:
-                                  WidgetStatePropertyAll(Colors.white),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Highest Bid: ₹$highestBid',
+                                style:
+                                    const TextStyle(fontWeight: FontWeight.bold)),
+                            GestureDetector(
+                              onTap: (){
+                                fetchBidDetails();
+    fetchOngoingBids();
+                              },
+                              child: Text('Refresh Data',
+                                  style:
+                                      const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
                             ),
-                            onPressed: () {
-                              placeBid();
-                            },
-                            child: const Text('Place Bid'),
-                          ),
+                          ],
                         ),
+                        if (_bidable == true)
+                          Column(
+                            children: [
+                              const SizedBox(height: 8),
+                              Text('Your Bid: ₹$myBid'),
+                              const SizedBox(height: 16),
+                              TextField(
+                                controller: _bidController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: 'Enter your bid',
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    shape: WidgetStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5.0),
+                                    )),
+                                    backgroundColor: WidgetStatePropertyAll(
+                                        AppColors.primary),
+                                    foregroundColor:
+                                        WidgetStatePropertyAll(Colors.white),
+                                  ),
+                                  onPressed: () {
+                                    placeBid();
+                                  },
+                                  child: const Text('Place Bid'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        if (_bidable == false)
+                          SizedBox(
+                            height: 13,
+                          ),
+                        if (_bidable == false)
+                          Text(
+                              'Note:You can\'t place bid for your own product.'),
                       ],
                     ),
                   ),
@@ -626,82 +668,98 @@ class _ProductBidingState extends State<ProductBiding> {
                   // Tab 3: Bids
                   // Tab 3: Ongoing Bids (Redesigned)
                   bidHistory.isEmpty
-                      ? const Center(
-                          child: Text('No bids yet.',
-                              style: TextStyle(fontSize: 16)))
-                      : ListView.separated(
-                          padding: const EdgeInsets.all(16.0),
-                          itemCount: bidHistory.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final bid = bidHistory[index];
-                            final isLatest = index == 0;
-                            return Card(
-                              elevation: isLatest ? 6 : 2,
-                              color: isLatest
-                                  ? Colors.green.shade50
-                                  : Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: isLatest
-                                    ? BorderSide(
-                                        color: Colors.green.shade300, width: 2)
-                                    : BorderSide.none,
-                              ),
-                              child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 20),
-                                leading: CircleAvatar(
-                                  backgroundColor: isLatest
-                                      ? Colors.green.shade400
-                                      : Colors.grey.shade300,
-                                  child: Icon(
-                                    isLatest ? Icons.star : Icons.gavel,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                title: Text(
-                                  '₹${bid['bid_amount']}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    color: isLatest
-                                        ? Colors.green.shade700
-                                        : Colors.black87,
-                                  ),
-                                ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Bid Time: ${bid['bid_dt']}',
-                                      style: const TextStyle(fontSize: 13),
-                                    ),
-                                    // You can add more info here if needed
-                                  ],
-                                ),
-                                trailing: isLatest
-                                    ? Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: Colors.green.shade100,
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: const Text(
-                                          'Latest',
-                                          style: TextStyle(
-                                              color: Colors.green,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      )
-                                    : null,
-                              ),
-                            );
+                      ?  Center(
+                          child: Column(
+                            children: [
+                              Text('No bids yet.',
+                                  style: TextStyle(fontSize: 16)),
+                              GestureDetector(onTap:(){
+                                fetchBidDetails();
+    fetchOngoingBids();
+                              }, child: Text('Click to Refresh', style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),))
+                            ],
+                          ))
+                      : RefreshIndicator(
+                          onRefresh: () async {
+                                fetchBidDetails();
+    fetchOngoingBids();
                           },
-                        ),
+                          child: ListView.separated(
+                            padding: const EdgeInsets.all(16.0),
+                            itemCount: bidHistory.length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final bid = bidHistory[index];
+                              final isLatest = index == 0;
+                              return Card(
+                                elevation: isLatest ? 6 : 2,
+                                color: isLatest
+                                    ? Colors.green.shade50
+                                    : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: isLatest
+                                      ? BorderSide(
+                                          color: Colors.green.shade300,
+                                          width: 2)
+                                      : BorderSide.none,
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 20),
+                                  leading: CircleAvatar(
+                                    backgroundColor: isLatest
+                                        ? Colors.green.shade400
+                                        : Colors.grey.shade300,
+                                    child: Icon(
+                                      isLatest ? Icons.star : Icons.gavel,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    '₹${bid['bid_amount']}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: isLatest
+                                          ? Colors.green.shade700
+                                          : Colors.black87,
+                                    ),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Bid Time: ${bid['bid_dt']}',
+                                        style: const TextStyle(fontSize: 13),
+                                      ),
+                                      // You can add more info here if needed
+                                    ],
+                                  ),
+                                  trailing: isLatest
+                                      ? Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.green.shade100,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: const Text(
+                                            'Latest',
+                                            style: TextStyle(
+                                                color: Colors.green,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                              );
+                            },
+                          ),
+                        )
                 ],
               ),
             ),

@@ -32,35 +32,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
-    if (name.isEmpty || email.isEmpty || password.isEmpty) {
-
-        if (name.isEmpty) {
-          nameError = true;
-          nameErrorMsg = "All fields are required";
-        } else {
-          nameError = false;
-          nameErrorMsg = "";
-        }
-        if (email.isEmpty) {
-          emailError = true;
-          emailErrorMsg = "All fields are required";
-        } else if(emailValidator(email) == false) {
-          emailError = true;
-          emailErrorMsg = "Please Enter a valid Email ID";
-        } else{
-          emailError = false;
-          emailErrorMsg = "";
-        }
-        if (password.isEmpty) {
-          passwordError = true;
-          passwordErrorMsg = "All fields are required";
-        } else {
-          passwordError = false;
-          passwordErrorMsg = "";
-        }
+      setState(() {
+      if (name.isEmpty) {
+        nameError = true;
+        nameErrorMsg = "All fields are required";
+      } else {
+        nameError = false;
+        nameErrorMsg = "";
+      }
+      if (email.isEmpty) {
+        emailError = true;
+        emailErrorMsg = "All fields are required";
+      } else if (emailValidator(email) == false) {
+        emailError = true;
+        emailErrorMsg = "Please Enter a valid Email ID";
+      } else {
+        emailError = false;
+        emailErrorMsg = "";
+      }
+      if (password.isEmpty) {
+        passwordError = true;
+        passwordErrorMsg = "All fields are required";
+      } else {
+        passwordError = false;
+        passwordErrorMsg = "";
+      }
+      });
       // Fluttertoast.showToast(msg: "All fields are required");
+    if(nameError || emailError || passwordError){
       return;
-    }
+    }else{
 
     setState(() => isLoading = true);
 
@@ -92,6 +93,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
       // Fluttertoast.showToast(msg: error);
     }
+    }
+
+
   }
 
   @override
@@ -102,13 +106,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         padding: const EdgeInsets.all(24.0),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Create Account',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-
               TextField(
                 controller: nameController,
                 decoration: const InputDecoration(
@@ -116,8 +120,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
-
+                            Visibility(
+              visible: nameError,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(nameErrorMsg,
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold)),
+                  SizedBox(
+                    height: 10,
+                  ),
+                ],
+              ),
+            ),
+           const SizedBox(height: 16),
               TextField(
                 controller: emailController,
                 decoration: const InputDecoration(
@@ -125,8 +144,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 16),
-
+              Visibility(
+              visible: emailError,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(emailErrorMsg,
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold)),
+                  SizedBox(
+                    height: 10,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
               TextField(
                 controller: passwordController,
                 obscureText: true,
@@ -135,15 +169,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 24),
-
+                           Visibility(
+              visible: passwordError,
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(passwordErrorMsg,
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold)),
+                  SizedBox(
+                    height: 10,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(AppColors.primary),
-                    foregroundColor: WidgetStatePropertyAll(Colors.white)
-                  ),
+                      backgroundColor:
+                          WidgetStatePropertyAll(AppColors.primary),
+                      foregroundColor: WidgetStatePropertyAll(Colors.white)),
                   onPressed: isLoading ? null : handleRegister,
                   child: isLoading
                       ? const SizedBox(

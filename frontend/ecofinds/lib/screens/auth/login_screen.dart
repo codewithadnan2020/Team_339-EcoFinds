@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
 
-    if (email.isEmpty || password.isEmpty) {
+    // if (email.isEmpty || password.isEmpty) {
       setState(() {
         if (email.isEmpty) {
           emailError = true;
@@ -50,8 +50,11 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       });
       // Fluttertoast.showToast(msg: "All fields are required");
-      return;
-    }
+      if (emailError || passwordError) {
+        return;
+      }else{
+
+    // }
 
     setState(() => isLoading = true);
 
@@ -79,6 +82,8 @@ class _LoginScreenState extends State<LoginScreen> {
       });
       // Fluttertoast.showToast(msg: error);
     }
+      }
+
   }
 
   @override
