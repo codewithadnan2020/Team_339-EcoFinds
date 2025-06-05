@@ -355,55 +355,66 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // Search Bar
               TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search for products...',
-                  prefixIcon: const Icon(Icons.search),
-                  // border: OutlineInputBorder(
-                  //   borderRadius: BorderRadius.circular(12),
-                  // ),
-                ),
-              ),
+          controller: _searchController,
+          style: const TextStyle(fontSize: 16),
+          decoration: InputDecoration(
+            hintText: 'Search for products...',
+            prefixIcon: const Icon(Icons.search, color: Colors.black54),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
               const SizedBox(height: 12),
 
               // --- SORT, FILTER, GROUP BUTTONS ---
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: _showSortDialog,
-                      icon: const Icon(Icons.sort),
-                      label: const Text('Sort'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue.shade50,
-                        foregroundColor: Colors.blue.shade900,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      onPressed: _showFilterDialog,
-                      icon: const Icon(Icons.filter_alt),
-                      label: const Text('Filter'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade50,
-                        foregroundColor: Colors.green.shade900,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      onPressed: _showGroupDialog,
-                      icon: const Icon(Icons.group_work),
-                      label: const Text('Group By'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple.shade50,
-                        foregroundColor: Colors.purple.shade900,
-                      ),
-                    ),
-                  ],
+                SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              OutlinedButton.icon(
+                onPressed: _showSortDialog,
+                icon: const Icon(Icons.sort, color: Colors.black87),
+                label: const Text('Sort', style: TextStyle(color: Colors.black87)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.black26),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  backgroundColor: Colors.white,
+                  elevation: 0,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(width: 10),
+              OutlinedButton.icon(
+                onPressed: _showFilterDialog,
+                icon: const Icon(Icons.filter_alt_outlined, color: Colors.black87),
+                label: const Text('Filter', style: TextStyle(color: Colors.black87)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.black26),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  backgroundColor: Colors.white,
+                  elevation: 0,
+                ),
+              ),
+              const SizedBox(width: 10),
+              OutlinedButton.icon(
+                onPressed: _showGroupDialog,
+                icon: const Icon(Icons.tune, color: Colors.black87),
+                label: const Text('Group By', style: TextStyle(color: Colors.black87)),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.black26),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  backgroundColor: Colors.white,
+                  elevation: 0,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
 
               // Category Chips
               // SizedBox(
@@ -419,33 +430,30 @@ class _HomeScreenState extends State<HomeScreen> {
               // ),
               // const SizedBox(height: 16),
 
-              // ...existing code...
               Card(
-                color: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
-                elevation: 4,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: CarouselSlider(
-                    options: CarouselOptions(
-                      autoPlay: true,
-                      enlargeCenterPage: true,
-                      enlargeFactor: 0.9,
-                      height: 120.0,
-                    ),
-                    items: images.map((img) {
-                      return Image.asset(
-                        img,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      );
-                    }).toList(),
-                  ),
-                ),
+          color: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: CarouselSlider(
+              options: CarouselOptions(
+                autoPlay: true,
+                enlargeCenterPage: true,
+                enlargeFactor: 0.98,
+                height: 110.0,
               ),
-// ...existing code...
+              items: images.map((img) {
+                return Image.asset(
+                  img,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                );
+              }).toList(),
+            ),
+          ),
+        ),
               const SizedBox(height: 24),
 
               // Product Section
@@ -710,19 +718,23 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavBarTapped,
-        items: [
-          BottomNavigationBarItem(label: "Home", icon: Icon(Icons.home)),
-          BottomNavigationBarItem(
-            label: "Live Auctions",
-            icon: ShakingIcon(
-              icon: Icon(Icons.gavel, color: Colors.red),
-            ),
-          ),
-        ],
+    bottomNavigationBar: BottomNavigationBar(
+  backgroundColor: Colors.white,
+  selectedItemColor: Colors.black87,
+  unselectedItemColor: Colors.black87,
+  selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+  unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+  currentIndex: _selectedIndex,
+  onTap: _onNavBarTapped,
+  items: [
+    const BottomNavigationBarItem(label: "Home", icon: Icon(Icons.home)),
+    BottomNavigationBarItem(
+      label: "Live Auctions",
+      icon: ShakingIcon(
+        icon: Icon(Icons.gavel, color: Colors.red),
       ),
-    );
+    ),
+  ],
+),);
   }
 }

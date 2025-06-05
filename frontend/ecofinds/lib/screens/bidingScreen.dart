@@ -357,7 +357,9 @@ class _ProductBidingState extends State<ProductBiding> {
       if (diff.isNegative) {
         setState(() {
           timeLeft = 'Auction ended';
-          checkWinner();
+          if (_bidable == true){
+            checkWinner();
+          }
           _timer?.cancel();
         });
       } else {
